@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>bbs club</title>
+     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/lib/editor/editor.css">
+    <link rel="stylesheet" href="/static/lib/webuploader/webuploader.css">
+    <script src="/static/lib/jquery-3.0.0.min.js"></script>
+    <script src="/static/lib/markdownit.js"></script>
+    <script src="/static/lib/webuploader/webuploader.withoutimage.js"></script>
+    <script src="/static/lib/editor/editor.js"></script>
+    <script src="/static/lib/editor/ext.js"></script>
+</head>
+<body>
+    <div id="main">
+        <div id="content">
+            <div class="panel">
+                <div class="header topic_header">
+                    <span class="topic_full_title">
+                        {{ topic.title }}
+                    </span>
+                </div>
+                <div class="changes">
+                    <span>发布于2天前</span>
+                    <span>作者</span>
+                    <span>{{ topic.views }} 次浏览</span>
+                    <span>来自 问答</span>
+                </div>
+                <div class="inner topic">
+                    <div class="topic_full_title">
+                        <div class="markdown-text">
+                            {{ topic.content }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="header">
+                  <span class="col_fade">{{ topic.replies() | count }} 回复</span>
+                </div>
+                {% for reply in topic.replies() %}
+                    <div class="cell reply_area reply_item" reply_id="{{ reply.id }}" reply_to_id="" id="{{ reply.id }}">
+                            <div class="author_content">
+                                <a href="#" class="user_avatar">
+                                    <img src="{{ '/uploads/' + reply.user().user_image + '?v=4&amp;s=120'}}" title="{{ reply.user().username }}">
+                                </a>
+                                <div class="user_info">
+                                    <a class="dark reply_author" href="#">{{ reply.user().username }}</a>
+                                    <a class="reply_time" href="{{ '#' + reply.id|string }}">{{ loop.index }}楼•{{ reply.push_time() }}</a>
+                                </div>
+                            </div>
+                            <div class="reply_content from-Lizhooh">
+                        <div class="markdown-text">
+                            {{ reply.content }}
+                        </div>
+                    </div>
+                    <div class="clearfix">
+                        <div class="reply2_area">
+                        </div>
+                    </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <form action="{{ url_for('reply.add') }}" method="post">
+            <input type="hidden" name="topic_id" value="{{ topic.id }}">
+            <textarea name="content"></textarea>
+            <button>添加回复</button>
+        </form>
+    </div>
+</body>
+</html>
