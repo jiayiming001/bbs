@@ -34,6 +34,23 @@ class Topic(Model):
         u = User.find_by(id=self.user_id)
         return u
 """
+class Cache(object):
+    def get(self, key):
+        pass
+
+    def set(self, key, value):
+        pass
+
+class RedisCache(Cache):
+    import redis
+    redis_db = redis.StrictRedis(host='localhost', port=6379, db=0)
+
+    def set(self, key, value):
+        return self.__class__.redis_db.set(key, value)
+
+    def get(self, key):
+        return self.__class__.redis_db.get(key)
+
 
 class Topic(Mongodb):
     __fields__ = Mongodb.__fields__ + [
@@ -45,6 +62,7 @@ class Topic(Mongodb):
     ]
 
     should_update_all = True
+    redis_cache = RedisCache()
     def to_json(self):
         d = dict()
         for k in Topic.__fields__:
@@ -61,7 +79,6 @@ class Topic(Mongodb):
             setattr(instance, k, v)
         return instance
 
-
     @classmethod
     def all_delay(cls):
         return Topic.all()
@@ -75,6 +92,16 @@ class Topic(Mongodb):
 
     def save(self):
         super(Topic, self).save()
+        self.__class__.should_update_all = True
+
+    @classmethod
+    def cache_all(cls):
+        if cls.should_update_all:
+            cls.redis_cache.set('topic_all', json.dumps([i.to_json() for i in cls.all_delay()]))
+            cls.should_update_all = False
+        j = json.loads(cls.redis_cache.get('topic_all').decode('utf-8'))
+        j = [cls.from_json(i) for i in j]
+        return j
 
 
     def replies(self):

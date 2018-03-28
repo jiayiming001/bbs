@@ -1,5 +1,6 @@
 from models.pymongodb import Mongodb
 
+
 """
 class Board(Model):
 

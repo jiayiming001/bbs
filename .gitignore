@@ -102,3 +102,5 @@ $RECYCLE.BIN/
 *.pyc
 /.idea/
 /data/
+*.jpg
+*.gif
